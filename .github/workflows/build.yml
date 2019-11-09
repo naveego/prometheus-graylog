@@ -18,4 +18,23 @@ jobs:
 
     - name: Build
       run: go build -v .
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Docker Login
+      run: docker login docker.pkg.github.com --username ${DOCKER_USER} --password ${DOCKER_PWD}
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PWD: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Docker Build
+      run: docker build -t docker.pkg.github.com/naveego/prometheus-graylog-adapter/adapter:latest .
+
+    - name: Docker Push
+      run: docker push docker.pkg.github.com/naveego/prometheus-graylog-adapter/adapter:latest
       
